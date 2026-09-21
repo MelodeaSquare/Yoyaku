@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melodea Square - 予約サイト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-yellow: #FFC425;
+      --accent-orange: #F37023;
+      --teal-green: #00A88F;
+      --dark-charcoal: #231F20;
+      --light-bg: #FFFDF5;
+      --card-bg: #FFFFFF;
+      --header-bg: #81cac4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: var(--light-bg);
+      color: var(--dark-charcoal);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--dark-charcoal);
+      text-align: center;
+      padding: 30px 20px 25px;
+      border-bottom: 5px solid var(--accent-orange);
+    }
+
+    .logo-container {
+      max-width: 160px;
+      margin: 0 auto 10px;
+    }
+
+    .logo-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--dark-charcoal);
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #333333;
+      font-weight: 500;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .stepper::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: #DDD;
+      z-index: 1;
+    }
+
+    .step-item {
+      position: relative;
+      z-index: 2;
+      background: var(--light-bg);
+      padding: 0 8px;
+      text-align: center;
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #DDD;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin: 0 auto 5px;
+    }
+
+    .step-item.active .step-number {
+      background: var(--teal-green);
+      color: white;
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #777;
+    }
+
+    .step-item.active .step-label {
+      color: var(--teal-green);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      border: 2px solid rgba(255, 196, 37, 0.3);
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark-charcoal);
+      border-left: 6px solid var(--teal-green);
+      padding-left: 12px;
+      margin-bottom: 15px;
+    }
+
+    .notice-box {
+      background-color: #FFF9E6;
+      border: 2px dashed var(--primary-yellow);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 10px;
+      margin-bottom: 25px;
+      font-size: 0.88rem;
+      color: #665000;
+      font-weight: 500;
+    }
+
+    .business-hours-info {
+      background: #E6F6F4;
+      border: 1px solid var(--teal-green);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+    }
+
+    .business-hours-info h4 {
+      color: var(--teal-green);
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .business-hours-info ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .business-hours-info li {
+      margin-bottom: 4px;
+    }
+
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .option-card {
+      border: 2px solid #EAEAEA;
+      border-radius: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FAFAFA;
+      transition: all 0.2s ease;
+    }
+
+    .option-card:hover {
+      border-color: var(--primary-yellow);
+      background: #FFFDF8;
+    }
+
+    .option-card.selected {
+      border-color: var(--teal-green);
+      background: #E6F6F4;
+    }
+
+    .option-title { font-weight: 700; font-size: 0.98rem; }
+    .option-price { font-weight: 700; color: var(--accent-orange); font-size: 0.95rem; white-space: nowrap; }
+
+    .grid-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .grid-btn {
+      border: 2px solid #EAEAEA;
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      background: #FAFAFA;
+      font-size: 0.9rem;
+    }
+
+    .grid-btn:hover {
+      border-color: var(--primary-yellow);
+      background: #FFFDF8;
+    }
+
+    .grid-btn.selected {
+      border-color: var(--teal-green);
+      background: var(--teal-green);
+      color: white;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #DDD;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .calendar-notice { font-size: 0.85rem; color: #666; margin-top: 6px; }
+
+    .btn-container { display: flex; gap: 15px; margin-top: 30px; }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary { background: var(--accent-orange); color: white; }
+    .btn-secondary { background: #E0E0E0; color: #333; }
+
+    .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .summary-table th, .summary-table td { padding: 12px; border-bottom: 1px solid #EAEAEA; text-align: left; }
+    .summary-table th { width: 35%; color: #666; font-weight: 700; font-size: 0.9rem; }
+    .summary-table td { font-weight: 700; }
+
+    .step-content { display: none; }
+    .step-content.active { display: block; }
+    .error-msg { color: #D32F2F; font-size: 0.85rem; font-weight: 700; margin-top: 5px; display: none; }
+    .info-msg { color: #00897B; font-size: 0.85rem; font-weight: 700; margin-top: 5px; display: none; }
+
+    .success-icon {
+      width: 70px;
+      height: 70px;
+      background: var(--teal-green);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+    }
+
+    @media (max-width: 600px) {
+      .card { padding: 20px; }
+      .grid-options { grid-template-columns: repeat(3, 1fr); }
+      .btn-container { flex-direction: column-reverse; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <img src="Melodea Square ロゴ　.png" alt="Melodea Square Logo" onerror="this.style.display='none'">
+    </div>
+    <h1>MELODEA SQUARE</h1>
+    <p>〜 音楽療法を専門にした自由な教室 〜</p>
+  </header>
+
+  <div class="container">
+
+    <!-- プログレスバー -->
+    <div class="stepper">
+      <div class="step-item active" id="step-indicator-1">
+        <div class="step-number">1</div>
+        <div class="step-label">メニュー選択</div>
+      </div>
+      <div class="step-item" id="step-indicator-2">
+        <div class="step-number">2</div>
+        <div class="step-label">日時選択</div>
+      </div>
+      <div class="step-item" id="step-indicator-3">
+        <div class="step-number">3</div>
+        <div class="step-label">お客様情報</div>
+      </div>
+      <div class="step-item" id="step-indicator-4">
+        <div class="step-number">4</div>
+        <div class="step-label">確認・確定</div>
+      </div>
+    </div>
+
+    <form id="bookingForm">
+
+      <!-- STEP 1: メニュー選択 -->
+      <div class="step-content active" id="step-1">
+        <div class="card">
+          
+          <!-- 1. ご相談・体験 -->
+          <h2 class="section-title">ご相談・体験レッスン</h2>
+          <div class="option-group">
+            <div class="option-card" data-menu="無料相談 60分" data-duration="60" data-type="consult">
+              <span class="option-title">無料相談 60分</span>
+              <span class="option-price">無料</span>
+            </div>
+            <div class="option-card" data-menu="初回体験 30分" data-duration="30" data-type="trial">
+              <span class="option-title">初回体験レッスン 30分</span>
+              <span class="option-price">¥1,000</span>
+            </div>
+          </div>
+          <div class="notice-box">
+            ⚠️ <strong>ご注意：</strong>わらび式LEA音楽支援メソッド、音楽療法は体験していただけません。無料相談をお選びください。
+          </div>
+
+          <!-- 2. 相談なしで契約をする方 -->
+          <h2 class="section-title" style="margin-top: 25px;">相談なしで契約をする方</h2>
+          <div class="form-group">
+            <label for="planSelect">プランをお選びください</label>
+            <select id="planSelect">
+              <option value="">-- 選択してください --</option>
+              <optgroup label="わらび式LEA音楽支援メソッド">
+                <option value="わらび式LEA音楽支援メソッド 通常プラン30分 (週1回)" data-duration="30">通常プラン 30分 (週1回)</option>
+                <option value="わらび式LEA音楽支援メソッド 通常プラン45分 (週1回)" data-duration="45">通常プラン 45分 (週1回)</option>
+                <option value="わらび式LEA音楽支援メソッド 集中プラン30分 (週2回)" data-duration="30">集中プラン 30分 (週2回)</option>
+                <option value="わらび式LEA音楽支援メソッド 集中プラン45分 (週2回)" data-duration="45">集中プラン 45分 (週2回)</option>
+              </optgroup>
+              <optgroup label="音楽療法">
+                <option value="音楽療法 30分" data-duration="30">音楽療法 30分</option>
+                <option value="音楽療法 45分" data-duration="45">音楽療法 45分</option>
+                <option value="音楽療法 60分" data-duration="60">音楽療法 60分</option>
+              </optgroup>
+              <optgroup label="アセスメント">
+                <option value="アセスメント 60分 (1回 ¥8,000)" data-duration="60">アセスメント 60分 (¥8,000)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- 3. 音楽レッスン（月謝制 / 単発） -->
+          <h2 class="section-title" style="margin-top: 25px;">音楽レッスン</h2>
+          <div class="form-group">
+            <label for="musicSelect">レッスン形式と時間枠をお選びください</label>
+            <select id="musicSelect">
+              <option value="">-- 選択してください --</option>
+              <optgroup label="月謝制レッスン (2回目以降は同じ日時で予約不要)">
+                <option value="月謝制音楽レッスン 30分" data-duration="30" data-type="music">月謝制 30分</option>
+                <option value="月謝制音楽レッスン 45分" data-duration="45" data-type="music">月謝制 45分</option>
+                <option value="月謝制音楽レッスン 60分" data-duration="60" data-type="music">月謝制 60分</option>
+              </optgroup>
+              <optgroup label="単発レッスン">
+                <option value="単発音楽レッスン 30分 (¥3,000)" data-duration="30" data-type="music">単発 30分 (¥3,000)</option>
+                <option value="単発音楽レッスン 45分 (¥4,500)" data-duration="45" data-type="music">単発 45分 (¥4,500)</option>
+                <option value="単発音楽レッスン 60分 (¥6,000)" data-duration="60" data-type="music">単発 60分 (¥6,000)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- 4. 希望楽器選択（初回体験 / 音楽レッスン選択時のみ表示） -->
+          <div id="instrumentSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #EAEAEA;">
+            <h2 class="section-title">希望楽器をお選びください <span style="color:red;">*</span></h2>
+            <div class="grid-options">
+              <div class="grid-btn" data-instrument="ピアノ">ピアノ</div>
+              <div class="grid-btn" data-instrument="ギター">ギター</div>
+              <div class="grid-btn" data-instrument="ウクレレ">ウクレレ</div>
+              <div class="grid-btn" data-instrument="トロンボーン">トロンボーン</div>
+              <div class="grid-btn" data-instrument="ボーカル">ボーカル</div>
+            </div>
+            <div class="error-msg" id="instrumentError">希望楽器を必ず選択してください。</div>
+          </div>
+
+          <div class="error-msg" id="menuError">予約したいメニューを1つお選びください。</div>
+
+          <div class="btn-container">
+            <button type="button" class="btn btn-primary" onclick="goToStep(2)">次へ（日時選択）</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: 日時選択 -->
+      <div class="step-content" id="step-2">
+        <div class="card">
+          <h2 class="section-title">ご希望日時を選択</h2>
+
+          <div class="business-hours-info">
+            <h4>⏰ 営業時間のお案内</h4>
+            <ul>
+              <li><strong>月〜金曜日：</strong> 10:00 〜 21:00</li>
+              <li><strong>土曜日：</strong> 9:00 〜 18:00</li>
+              <li><strong>定休日：</strong> 日曜日、毎月の第5週目</li>
+            </ul>
+          </div>
+
+          <div class="form-group">
+            <label for="bookingDate">予約日 <span style="color:red;">*</span></label>
+            <input type="date" id="bookingDate" required>
+            <div class="calendar-notice">※ 日曜日および毎月の第5週目（5回目の各曜日）は定休日のため選択できません。</div>
+            <div class="error-msg" id="dateError">定休日または過去の日付が選択されています。別の日付をお選びください。</div>
+          </div>
+
+          <div class="form-group">
+            <label for="bookingTime">開始希望時間 <span style="color:red;">*</span></label>
+            <select id="bookingTime" required disabled>
+              <option value="">-- 先に予約日を選択してください --</option>
+            </select>
+            <div class="info-msg" id="timeSlotLoading">予約状況を確認中...</div>
+            <div class="error-msg" id="timeConflictError">選択された開始時間は、既存の予約または営業時間（終了時刻）と重複しているため予約できません。</div>
+          </div>
+
+          <div class="btn-container">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(1)">戻る</button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(3)">次へ（お客様情報）</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: お客様情報 -->
+      <div class="step-content" id="step-3">
+        <div class="card">
+          <h2 class="section-title">お客様情報の入力</h2>
+          <div class="form-group">
+            <label for="userName">お名前 <span style="color:red;">*</span></label>
+            <input type="text" id="userName" placeholder="山田 太郎" required>
+          </div>
+          <div class="form-group">
+            <label for="userFurigana">ふりがな <span style="color:red;">*</span></label>
+            <input type="text" id="userFurigana" placeholder="やまだ たろう" required>
+          </div>
+          <div class="form-group">
+            <label for="userEmail">メールアドレス <span style="color:red;">*</span></label>
+            <input type="email" id="userEmail" placeholder="example@email.com" required>
+          </div>
+          <div class="form-group">
+            <label for="contactPref">ご希望の連絡方法 <span style="color:red;">*</span></label>
+            <select id="contactPref" required>
+              <option value="メール">メール</option>
+              <option value="LINE">LINE</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="userNotes">備考・ご相談内容（任意）</label>
+            <textarea id="userNotes" rows="3" placeholder="ご質問や特記事項がございましたらご記入ください。"></textarea>
+          </div>
+
+          <div class="btn-container">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(2)">戻る</button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(4)">予約内容の確認へ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: 確認・確定 -->
+      <div class="step-content" id="step-4">
+        <div class="card">
+          <h2 class="section-title">ご予約内容の確認</h2>
+          <table class="summary-table">
+            <tr>
+              <th>予約項目</th>
+              <td id="summaryMenu">-</td>
+            </tr>
+            <tr id="summaryInstrumentRow" style="display: none;">
+              <th>希望楽器</th>
+              <td id="summaryInstrument">-</td>
+            </tr>
+            <tr>
+              <th>所要時間</th>
+              <td id="summaryDuration">-</td>
+            </tr>
+            <tr>
+              <th>ご希望日時</th>
+              <td id="summaryDatetime">-</td>
+            </tr>
+            <tr>
+              <th>お名前</th>
+              <td id="summaryName">-</td>
+            </tr>
+            <tr>
+              <th>ふりがな</th>
+              <td id="summaryFurigana">-</td>
+            </tr>
+            <tr>
+              <th>メールアドレス</th>
+              <td id="summaryEmail">-</td>
+            </tr>
+            <tr>
+              <th>連絡方法</th>
+              <td id="summaryContactPref">-</td>
+            </tr>
+            <tr>
+              <th>備考</th>
+              <td id="summaryNotes">-</td>
+            </tr>
+          </table>
+
+          <div id="submitError" class="error-msg" style="margin-bottom: 15px;"></div>
+
+          <div class="btn-container">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(3)">変更する</button>
+            <button type="submit" class="btn btn-primary" id="confirmBtn">この内容で予約を確定する</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: 完了画面 -->
+      <div class="step-content" id="step-5">
+        <div class="card" style="text-align: center;">
+          <div class="success-icon">✓</div>
+          <h2 style="font-size: 1.5rem; color: var(--teal-green); margin-bottom: 10px;">ご予約が完了しました！</h2>
+          <p style="margin-bottom: 20px;">ご入力いただいたメールアドレス宛に確認メールをお送りしました。<br>内容をご確認の上、当日お越しください。</p>
+          <div class="btn-container" style="justify-content: center;">
+            <a href="javascript:location.reload();" class="btn btn-primary" style="max-width: 250px;">トップに戻る</a>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyYB0cd7gyxmt5Ww-aCZ_YZKh7udn68X4Zn5P9tYNWRHEVd-xLVem2gTludm97GN_PG/exec";
+
+    let selectedMenu = "";
+    let selectedDuration = 30; // 所要時間(分): 30, 45, 60
+    let requiresInstrument = false;
+    let selectedInstrument = "";
+    let existingBookings = []; // GASから取得した既存予約データ [{ start: "18:30", end: "19:00" }, ...]
+
+    const dateInput = document.getElementById('bookingDate');
+    const timeSelect = document.getElementById('bookingTime');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    // 分を「HH:MM」表記に変換ヘルパー
+    function minutesToHHMM(totalMinutes) {
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0');
+    }
+
+    // 「HH:MM」表記を数値分に変換ヘルパー
+    function hhmmToMinutes(hhmm) {
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    // その月の「第何回目の曜日か」を判定する関数 (1〜5)
+    function getNthDayOfWeek(date) {
+      const dayOfMonth = date.getDate();
+      return Math.ceil(dayOfMonth / 7);
+    }
+
+    // 予約重複判定 (NewStart < ExistEnd) && (NewEnd > ExistStart)
+    function isSlotOverlapping(newStartMin, newEndMin, existStartMin, existEndMin) {
+      return (newStartMin < existEndMin) && (newEndMin > existStartMin);
+    }
+
+    // メニュー選択状態更新
+    function setMenu(menuName, duration, needInstrument) {
+      selectedMenu = menuName;
+      selectedDuration = parseInt(duration, 10) || 30;
+      requiresInstrument = needInstrument;
+
+      if (requiresInstrument) {
+        document.getElementById('instrumentSection').style.display = 'block';
+      } else {
+        document.getElementById('instrumentSection').style.display = 'none';
+      }
+
+      document.getElementById('menuError').style.display = 'none';
+    }
+
+    // 無料相談・初回体験カード選択
+    document.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('planSelect').value = "";
+        document.getElementById('musicSelect').value = "";
+
+        this.classList.add('selected');
+        const menu = this.getAttribute('data-menu');
+        const duration = this.getAttribute('data-duration');
+        const type = this.getAttribute('data-type');
+
+        setMenu(menu, duration, type === 'trial');
+      });
+    });
+
+    // 契約プランセレクトボックス変更
+    document.getElementById('planSelect').addEventListener('change', function() {
+      if (this.value) {
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('musicSelect').value = "";
+
+        const selectedOption = this.options[this.selectedIndex];
+        const duration = selectedOption.getAttribute('data-duration');
+
+        setMenu(this.value, duration, false);
+      }
+    });
+
+    // 音楽レッスンセレクトボックス変更
+    document.getElementById('musicSelect').addEventListener('change', function() {
+      if (this.value) {
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('planSelect').value = "";
+
+        const selectedOption = this.options[this.selectedIndex];
+        const duration = selectedOption.getAttribute('data-duration');
+
+        setMenu(this.value, duration, true);
+      } else {
+        requiresInstrument = false;
+        document.getElementById('instrumentSection').style.display = 'none';
+      }
+    });
+
+    // 楽器ボタン選択
+    document.querySelectorAll('.grid-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedInstrument = this.getAttribute('data-instrument');
+        document.getElementById('instrumentError').style.display = 'none';
+      });
+    });
+
+    // 日付選択時のGAS通信＆時間枠動的生成
+    dateInput.addEventListener('change', async function() {
+      if (!this.value) {
+        timeSelect.innerHTML = '<option value="">-- 先に予約日を選択してください --</option>';
+        timeSelect.disabled = true;
+        return;
+      }
+
+      const parts = this.value.split('-');
+      const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      const dayOfWeek = selectedDate.getDay(); // 0: 日, 1: 月, ... 6: 土
+      const nthWeek = getNthDayOfWeek(selectedDate); // 1〜5回目
+      const dateError = document.getElementById('dateError');
+      const timeSlotLoading = document.getElementById('timeSlotLoading');
+
+      // 1. 日曜日 (0) のチェック
+      if (dayOfWeek === 0) {
+        dateError.innerText = "日曜日は定休日です。他の曜日をお選びください。";
+        dateError.style.display = 'block';
+        this.value = '';
+        timeSelect.innerHTML = '<option value="">-- 先に予約日を選択してください --</option>';
+        timeSelect.disabled = true;
+        return;
+      }
+
+      // 2. 第5週目 (5回目) のチェック
+      if (nthWeek === 5) {
+        dateError.innerText = "毎月の第5週目（5回目の曜日）は定休日のためご予約いただけません。";
+        dateError.style.display = 'block';
+        this.value = '';
+        timeSelect.innerHTML = '<option value="">-- 先に予約日を選択してください --</option>';
+        timeSelect.disabled = true;
+        return;
+      }
+
+      dateError.style.display = 'none';
+      timeSlotLoading.style.display = 'block';
+      timeSelect.innerHTML = '<option value="">予約状況を確認中...</option>';
+      timeSelect.disabled = true;
+
+      // 3. GASから選択日の既存予約データを取得
+      existingBookings = [];
+      try {
+        const fetchUrl = `${GAS_URL}?date=${this.value}`;
+        const res = await fetch(fetchUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "success" && Array.isArray(data.bookings)) {
+            existingBookings = data.bookings; // 例: [{ start: "18:30", end: "19:00" }]
+          }
+        }
+      } catch (err) {
+        console.warn("既存予約の取得に失敗しました。ローカル判定のみ適用します:", err);
+      } finally {
+        timeSlotLoading.style.display = 'none';
+      }
+
+      // 4. 営業時間設定 (分換算)
+      let openMin = 10 * 60; // 月〜金: 10:00
+      let closeMin = 21 * 60; // 月〜金: 21:00
+
+      if (dayOfWeek === 6) {
+        openMin = 9 * 60; // 土曜日: 09:00
+        closeMin = 18 * 60; // 土曜日: 18:00
+      }
+
+      // 30分間隔で開始枠候補を作成
+      timeSelect.innerHTML = '<option value="">-- 開始時間を選択してください --</option>';
+
+      for (let startMin = openMin; startMin < closeMin; startMin += 30) {
+        const endMin = startMin + selectedDuration;
+
+        // 営業終了時間を超過する場合は不可
+        if (endMin > closeMin) {
+          continue;
+        }
+
+        const startTimeStr = minutesToHHMM(startMin);
+        const endTimeStr = minutesToHHMM(endMin);
+
+        // 重複チェック
+        let isConflict = false;
+        for (const booking of existingBookings) {
+          const existStartMin = hhmmToMinutes(booking.start);
+          const existEndMin = hhmmToMinutes(booking.end);
+
+          if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
+            isConflict = true;
+            break;
+          }
+        }
+
+        const option = document.createElement('option');
+        option.value = startTimeStr;
+
+        if (isConflict) {
+          option.textContent = `${startTimeStr}〜${endTimeStr} (× 既に予約あり)`;
+          option.disabled = true;
+        } else {
+          option.textContent = `${startTimeStr}〜${endTimeStr} (〇 予約可能)`;
+        }
+
+        timeSelect.appendChild(option);
+      }
+
+      timeSelect.disabled = false;
+    });
+
+    // 開始時間変更チェック
+    timeSelect.addEventListener('change', function() {
+      document.getElementById('timeConflictError').style.display = 'none';
+    });
+
+    function goToStep(step) {
+      if (step === 2) {
+        if (!selectedMenu) {
+          document.getElementById('menuError').style.display = 'block';
+          return;
+        }
+        if (requiresInstrument && !selectedInstrument) {
+          document.getElementById('instrumentError').style.display = 'block';
+          return;
+        }
+        // STEP2に遷移した際、既に日付が入っている場合は時間プルダウンを更新
+        if (dateInput.value) {
+          dateInput.dispatchEvent(new Event('change'));
+        }
+      }
+
+      if (step === 3) {
+        const dateVal = document.getElementById('bookingDate').value;
+        const timeVal = document.getElementById('bookingTime').value;
+        if (!dateVal || !timeVal) {
+          alert("ご希望の日付と時間を両方選択してください。");
+          return;
+        }
+
+        // 念のためJavaScript側でも重複を最終確認
+        const startMin = hhmmToMinutes(timeVal);
+        const endMin = startMin + selectedDuration;
+        let conflict = false;
+
+        for (const booking of existingBookings) {
+          const existStartMin = hhmmToMinutes(booking.start);
+          const existEndMin = hhmmToMinutes(booking.end);
+
+          if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
+            conflict = true;
+            break;
+          }
+        }
+
+        if (conflict) {
+          document.getElementById('timeConflictError').style.display = 'block';
+          return;
+        }
+      }
+
+      if (step === 4) {
+        const name = document.getElementById('userName').value.trim();
+        const furigana = document.getElementById('userFurigana').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+
+        if (!name || !furigana || !email) {
+          alert("お名前、ふりがな、メールアドレスをすべて入力してください。");
+          return;
+        }
+
+        const startHHMM = document.getElementById('bookingTime').value;
+        const endHHMM = minutesToHHMM(hhmmToMinutes(startHHMM) + selectedDuration);
+
+        document.getElementById('summaryMenu').innerText = selectedMenu;
+        if (requiresInstrument) {
+          document.getElementById('summaryInstrumentRow').style.display = 'table-row';
+          document.getElementById('summaryInstrument').innerText = selectedInstrument;
+        } else {
+          document.getElementById('summaryInstrumentRow').style.display = 'none';
+        }
+
+        document.getElementById('summaryDuration').innerText = `${selectedDuration}分`;
+        document.getElementById('summaryDatetime').innerText = `${document.getElementById('bookingDate').value} ${startHHMM}〜${endHHMM}`;
+        document.getElementById('summaryName').innerText = name;
+        document.getElementById('summaryFurigana').innerText = furigana;
+        document.getElementById('summaryEmail').innerText = email;
+        document.getElementById('summaryContactPref').innerText = document.getElementById('contactPref').value;
+        document.getElementById('summaryNotes').innerText = document.getElementById('userNotes').value || "特になし";
+      }
+
+      document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + step).classList.add('active');
+
+      document.querySelectorAll('.step-item').forEach((item, index) => {
+        if (index + 1 <= step) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+      window.scrollTo(0, 0);
+    }
+
+    // フォーム送信処理
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const confirmBtn = document.getElementById('confirmBtn');
+      const submitError = document.getElementById('submitError');
+      
+      confirmBtn.disabled = true;
+      confirmBtn.innerText = "予約処理中...";
+      submitError.style.display = 'none';
+
+      const startHHMM = document.getElementById('bookingTime').value;
+      const endHHMM = minutesToHHMM(hhmmToMinutes(startHHMM) + selectedDuration);
+
+      const payload = {
+        menu: selectedMenu,
+        duration: selectedDuration,
+        instrument: selectedInstrument || "なし",
+        date: document.getElementById('bookingDate').value,
+        startTime: startHHMM,
+        endTime: endHHMM,
+        datetime: `${document.getElementById('bookingDate').value} ${startHHMM}〜${endHHMM}`,
+        name: document.getElementById('userName').value,
+        furigana: document.getElementById('userFurigana').value,
+        email: document.getElementById('userEmail').value,
+        contactPref: document.getElementById('contactPref').value,
+        notes: document.getElementById('userNotes').value
+      };
+
+      try {
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          goToStep(5);
+        } else {
+          throw new Error(result.message || "予約の送信に失敗しました。");
+        }
+      } catch (err) {
+        submitError.innerText = "エラーが発生しました: " + err.message;
+        submitError.style.display = 'block';
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "この内容で予約を確定する";
+      }
+    });
+  </script>
+</body>
+</html>
