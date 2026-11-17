@@ -353,9 +353,20 @@
             ⚠️ <strong>ご注意：</strong>わらび式LEA音楽支援メソッド、音楽療法は体験していただけません。無料相談をお選びください。
           </div>
 
-          <!-- 2. 相談なしで契約をする方 -->
-          <h2 class="section-title" style="margin-top: 25px;">相談なしで契約をする方</h2>
-          <div class="form-group">
+         <!-- 2. 相談なしで契約をする方-->
+<h2 class="section-title" style="margin-top: 25px;">相談なしで契約をする方</h2>
+
+<h3 style="
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teal-green);
+  margin: 20px 0 12px;
+">
+  わらび式LEA音楽支援メソッド / 音楽療法
+</h3>
+
+<div class="form-group">
+
             <label for="planSelect">プランをお選びください</label>
             <select id="planSelect">
               <option value="">-- 選択してください --</option>
@@ -469,13 +480,31 @@
             <label for="userEmail">メールアドレス <span style="color:red;">*</span></label>
             <input type="email" id="userEmail" placeholder="example@email.com" required>
           </div>
-          <div class="form-group">
-            <label for="contactPref">ご希望の連絡方法 <span style="color:red;">*</span></label>
-            <select id="contactPref" required>
-              <option value="メール">メール</option>
-              <option value="LINE">LINE</option>
-            </select>
-          </div>
+<div class="form-group">
+  <label for="contactPref">ご希望の連絡方法 <span style="color:red;">*</span></label>
+  <select id="contactPref" required>
+    <option value="メール">メール</option>
+    <option value="LINE">LINE</option>
+  </select>
+
+  <div id="lineNotice" style="
+    display: none;
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: #E8F8E6;
+    border: 1px solid #8BCF82;
+    border-radius: 8px;
+    color: #3F6638;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  ">
+    💬 <strong>LINEでのご連絡をご希望の方へ</strong><br>
+    LINEの仕様上、当方から先にメッセージをお送りすることができません。<br>
+    そのため、<strong>ご予約後にLINEから「お名前」をメッセージでお送りください。</strong><br>
+    お名前を確認後、こちらからご連絡いたします。
+  </div>
+</div>
+
           <div class="form-group">
             <label for="userNotes">備考・ご相談内容（任意）</label>
             <textarea id="userNotes" rows="3" placeholder="ご質問や特記事項がございましたらご記入ください。"></textarea>
@@ -566,8 +595,38 @@
 
     const dateInput = document.getElementById('bookingDate');
     const timeSelect = document.getElementById('bookingTime');
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.min = today;
+// 連絡方法によってLINE案内を表示・非表示
+const contactPref = document.getElementById('contactPref');
+const lineNotice = document.getElementById('lineNotice');
+
+contactPref.addEventListener('change', function() {
+  if (this.value === 'LINE') {
+    lineNotice.style.display = 'block';
+  } else {
+    lineNotice.style.display = 'none';
+  }
+});
+
+// 今日・明日は予約不可
+// 予約可能なのは明後日以降
+function getLocalDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+const now = new Date();
+
+const dayAfterTomorrow = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  now.getDate() + 2
+);
+
+dateInput.min = getLocalDateString(dayAfterTomorrow);
+
 
     // 分を「HH:MM」表記に変換ヘルパー
     function minutesToHHMM(totalMinutes) {
@@ -583,10 +642,30 @@
     }
 
     // その月の「第何回目の曜日か」を判定する関数 (1〜5)
-    function getNthDayOfWeek(date) {
-      const dayOfMonth = date.getDate();
-      return Math.ceil(dayOfMonth / 7);
-    }
+// ============================================================
+// その月の「何回目の曜日」かを判定
+// 例：その月の5回目の月曜日 → 5
+// ============================================================
+function getNthDayOfWeek(date) {
+
+  const dayOfMonth = date.getDate();
+
+  // その月の1日
+  const firstDayOfMonth = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    1
+  );
+
+  // その月の1日の曜日
+  const firstDayOfWeek = firstDayOfMonth.getDay();
+
+  // 同じ曜日が何回目か
+  return Math.floor(
+    (dayOfMonth - 1 + firstDayOfWeek) / 7
+  ) + 1;
+}
+
 
     // 予約重複判定 (NewStart < ExistEnd) && (NewEnd > ExistStart)
     function isSlotOverlapping(newStartMin, newEndMin, existStartMin, existEndMin) {
@@ -670,13 +749,45 @@
         timeSelect.disabled = true;
         return;
       }
+      // 今日・明日は予約不可
+      const selectedDateString = this.value;
+      const now = new Date();
 
-      const parts = this.value.split('-');
-      const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      const minAllowedDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 2
+      );
+
+      const selectedDateParts = selectedDateString.split('-');
+
+      const selectedDate = new Date(
+        Number(selectedDateParts[0]),
+        Number(selectedDateParts[1]) - 1,
+        Number(selectedDateParts[2])
+      );
+
+      const dateError = document.getElementById('dateError');
+
+      if (selectedDate < minAllowedDate) {
+        dateError.innerText =
+          "ご予約は2日後以降の日程から承っております。今日・明日のご予約はできません。";
+        dateError.style.display = 'block';
+
+        this.value = '';
+
+        timeSelect.innerHTML =
+          '<option value="">-- 先に予約日を選択してください --</option>';
+
+        timeSelect.disabled = true;
+
+        return;
+}
+      
+
       const dayOfWeek = selectedDate.getDay(); // 0: 日, 1: 月, ... 6: 土
       const nthWeek = getNthDayOfWeek(selectedDate); // 1〜5回目
-      const dateError = document.getElementById('dateError');
-      const timeSlotLoading = document.getElementById('timeSlotLoading');
+           const timeSlotLoading = document.getElementById('timeSlotLoading');
 
       // 1. 日曜日 (0) のチェック
       if (dayOfWeek === 0) {
@@ -743,17 +854,25 @@
         const startTimeStr = minutesToHHMM(startMin);
         const endTimeStr = minutesToHHMM(endMin);
 
-        // 重複チェック
-        let isConflict = false;
-        for (const booking of existingBookings) {
-          const existStartMin = hhmmToMinutes(booking.start);
-          const existEndMin = hhmmToMinutes(booking.end);
+// 重複チェック
+let isConflict = false;
 
-          if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
-            isConflict = true;
-            break;
-          }
-        }
+for (const booking of existingBookings) {
+
+  // 終日予定がある日は予約不可
+  if (booking.allDay) {
+    isConflict = true;
+    break;
+  }
+
+  const existStartMin = hhmmToMinutes(booking.start);
+  const existEndMin = hhmmToMinutes(booking.end);
+
+  if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
+    isConflict = true;
+    break;
+  }
+}
 
         const option = document.createElement('option');
         option.value = startTimeStr;
@@ -801,24 +920,32 @@
         }
 
         // 念のためJavaScript側でも重複を最終確認
-        const startMin = hhmmToMinutes(timeVal);
-        const endMin = startMin + selectedDuration;
-        let conflict = false;
+  const startMin = hhmmToMinutes(timeVal);
+const endMin = startMin + selectedDuration;
+let conflict = false;
 
-        for (const booking of existingBookings) {
-          const existStartMin = hhmmToMinutes(booking.start);
-          const existEndMin = hhmmToMinutes(booking.end);
+for (const booking of existingBookings) {
 
-          if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
-            conflict = true;
-            break;
-          }
-        }
+  // 終日予定がある日は予約不可
+  if (booking.allDay) {
+    conflict = true;
+    break;
+  }
 
-        if (conflict) {
-          document.getElementById('timeConflictError').style.display = 'block';
-          return;
-        }
+  const existStartMin = hhmmToMinutes(booking.start);
+  const existEndMin = hhmmToMinutes(booking.end);
+
+  if (isSlotOverlapping(startMin, endMin, existStartMin, existEndMin)) {
+    conflict = true;
+    break;
+  }
+}
+
+if (conflict) {
+  document.getElementById('timeConflictError').style.display = 'block';
+  return;
+}
+
       }
 
       if (step === 4) {
